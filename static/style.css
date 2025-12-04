@@ -84,6 +84,17 @@ body {
     color: #dc143c;
 }
 
+.nav-auth {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-user {
+    color: white;
+    font-weight: 700;
+}
+
 /* Content Styles */
 .content {
     max-width: 1200px;
@@ -145,13 +156,13 @@ button:hover {
     box-shadow: 0 5px 15px rgba(220, 20, 60, 0.3);
 }
 
-input, textarea {
+input, textarea, select {
     border: 2px solid #ddd;
     border-radius: 5px;
     transition: border-color 0.3s ease;
 }
 
-input:focus, textarea:focus {
+input:focus, textarea:focus, select:focus {
     outline: none;
     border-color: #dc143c;
 }
@@ -262,6 +273,13 @@ input:focus, textarea:focus {
     font-weight: 700;
 }
 
+.card-title {
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #8b0000;
+}
+
 .pill {
     background: #fff;
     padding: 6px 12px;
@@ -288,6 +306,12 @@ input:focus, textarea:focus {
     justify-content: space-between;
     align-items: center;
     gap: 10px;
+}
+
+.card-list li.party-placeholder {
+    background: #f8fafc;
+    border-style: dashed;
+    color: #94a3b8;
 }
 
 .card-list h3 {
@@ -333,6 +357,35 @@ input:focus, textarea:focus {
 
 .card-link:hover {
     text-decoration: underline;
+}
+
+.muted {
+    color: #666;
+}
+
+.placeholder-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.placeholder-line {
+    height: 10px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    width: 160px;
+}
+
+.placeholder-line.short {
+    width: 120px;
+}
+
+.card-list-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    width: 100%;
 }
 
 .section {
@@ -423,6 +476,154 @@ input:focus, textarea:focus {
 
 .cta-banner .btn.ghost:hover {
     background: rgba(255, 255, 255, 0.15);
+}
+
+.auth-callout {
+    margin-top: 20px;
+    padding: 18px 20px;
+    border: 1px dashed #dc143c;
+    border-radius: 10px;
+    background: #fff7f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+}
+
+.auth-callout h3 {
+    margin-bottom: 6px;
+}
+
+.auth-callout .small {
+    color: #555;
+    margin-bottom: 0;
+}
+
+.callout-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.auth-form {
+    max-width: 520px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.auth-form form {
+    margin-top: 30px;
+}
+
+.auth-form label {
+    display: block;
+    margin-top: 15px;
+    text-align: left;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+.auth-form button {
+    width: 100%;
+    margin-top: 25px;
+}
+
+.form-error {
+    color: #b3002d;
+    font-weight: 700;
+}
+
+.form-footer {
+    margin-top: 15px;
+}
+
+.add-party-form {
+    max-width: 820px;
+}
+
+.party-form {
+    margin-top: 20px;
+    padding: 18px;
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+    background: #f9fafb;
+}
+
+.party-form h3 {
+    margin-bottom: 10px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-field label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-field input,
+.form-field textarea,
+.form-field select {
+    width: 100%;
+    padding: 10px;
+}
+
+.party-list {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.party-card {
+    padding: 16px;
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.party-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.party-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.party-date {
+    font-weight: 700;
+    color: #8b0000;
+}
+
+.party-meta {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.list-actions {
+    margin: 12px 0;
+    display: flex;
+    justify-content: flex-end;
 }
 
 /* Responsive Design */

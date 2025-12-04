@@ -1,0 +1,78 @@
+{% extends "template.html" %}
+
+{% block title %}Add Party - WTM Harvard{% endblock %}
+
+{% block content %}
+<div class="container auth-form add-party-form" style="text-align: left;">
+    <div class="add-header">
+        <div>
+            <p class="eyebrow">Add a party</p>
+            <h1>Share a new party with WTM</h1>
+        </div>
+        <a class="btn ghost" href="/list">Back to list</a>
+    </div>
+
+    {% if not session.get('user') %}
+    <div class="auth-callout" style="margin: 16px 0;">
+        <div>
+            <p class="eyebrow">Login required</p>
+            <h3>Log in to add a party.</h3>
+            <p class="small">You'll need an account to submit party details.</p>
+        </div>
+        <div class="callout-actions">
+            <a class="btn primary" href="/login">Log in</a>
+            <a class="btn ghost" href="/register">Register</a>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <p class="form-error">{{ error }}</p>
+    {% endif %}
+
+    {% if session.get('user') %}
+    <form method="POST" action="/add" class="party-form" style="margin-top: 16px;">
+        <div class="form-row">
+            <div class="form-field">
+                <label for="party_name">Party name</label>
+                <input type="text" id="party_name" name="party_name" required>
+            </div>
+            <div class="form-field">
+                <label for="host_name">Host name</label>
+                <input type="text" id="host_name" name="host_name" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-field">
+                <label for="location">Location</label>
+                <input type="text" id="location" name="location" required>
+            </div>
+            <div class="form-field">
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="form-field">
+                <label for="time">Time</label>
+                {% set default_time = "21:00" %}
+                <select id="time" name="time" required>
+                    {% for h in range(0, 24) %}
+                        {% for m in [0, 15, 30, 45] %}
+                            {% set value = "%02d:%02d"|format(h, m) %}
+                            {% set display_hour = 12 if h == 0 or h == 12 else h % 12 %}
+                            {% set meridiem = "AM" if h < 12 else "PM" %}
+                            {% set display = "%d:%02d %s"|format(display_hour, m, meridiem) %}
+                            <option value="{{ value }}" {% if value == default_time %}selected{% endif %}>{{ display }}</option>
+                        {% endfor %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-field">
+            <label for="description">Description (optional)</label>
+            <textarea id="description" name="description" rows="4" placeholder="What to expect, entry details, vibe"></textarea>
+        </div>
+        <button type="submit">Save party</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

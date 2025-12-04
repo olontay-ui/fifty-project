@@ -24,7 +24,14 @@
                     <a href="/about" class="nav-link">About</a>
                 </li>
             </ul>
+            {% if session.get('user') %}
+            <div class="nav-auth">
+                <span class="nav-user">{{ session.get('user') }}</span>
+                <a href="/logout" class="nav-login">Log Out</a>
+            </div>
+            {% else %}
             <a href="/login" class="nav-login">Log In</a>
+            {% endif %}
         </div>
     </nav>
 

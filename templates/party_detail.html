@@ -1,0 +1,32 @@
+{% extends "template.html" %}
+
+{% block title %}{{ party['party_name'] }} - WTM Harvard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="party-detail-header">
+        <div>
+            <p class="eyebrow">Party detail</p>
+            <h1>{{ party['party_name'] }}</h1>
+            <p class="party-meta">Hosted by {{ party['host_name'] }}</p>
+        </div>
+        <a class="btn ghost" href="/list">Back to list</a>
+    </div>
+
+    <div class="party-detail-grid">
+        <div class="party-detail-card">
+            <h3>When</h3>
+            <p>{{ party['date'] }} at {{ party['time'] }}</p>
+        </div>
+        <div class="party-detail-card">
+            <h3>Where</h3>
+            <p>{{ party['location'] }}</p>
+        </div>
+    </div>
+
+    <div class="party-detail-card" style="margin-top: 16px;">
+        <h3>Description</h3>
+        <p>{% if party['description'] %}{{ party['description'] }}{% else %}No description provided.{% endif %}</p>
+    </div>
+</div>
+{% endblock %}

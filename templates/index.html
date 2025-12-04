@@ -25,35 +25,47 @@
     </div>
     <div class="hero-card">
         <div class="card-header">
-            <p>Tonight's vibe</p>
-            <span class="pill">Template</span>
+            <p class="card-title">Upcoming parties</p>
         </div>
         <ul class="card-list">
-            <li>
-                <div>
-                    <h3>Template</h3>
-                    <p>Real events will appear here when added.</p>
-                </div>
-                <span class="tag hot">Template</span>
-            </li>
-            <li>
-                <div>
-                    <h3>Template</h3>
-                    <p>Replace this with a live party update.</p>
-                </div>
-                <span class="tag mellow">Template</span>
-            </li>
-            <li>
-                <div>
-                    <h3>Template</h3>
-                    <p>Hook up your data and swap this card.</p>
-                </div>
-                <span class="tag official">Template</span>
-            </li>
+            {% set max_slots = 3 %}
+            {% for idx in range(max_slots) %}
+                {% set party = upcoming_parties[idx] if upcoming_parties and upcoming_parties|length > idx else None %}
+                <li class="{% if not party %}party-placeholder{% endif %}">
+                    {% if party %}
+                    <a class="card-list-link" href="/party/{{ party['id'] }}">
+                        <div>
+                            <h3>{{ party['party_name'] }}</h3>
+                            <p>Hosted by {{ party['host_name'] }} • {{ party['date'] }} @ {{ party['time'] }}</p>
+                            <p class="muted">{{ party['location'] }}</p>
+                        </div>
+                    </a>
+                    {% else %}
+                    <div class="placeholder-lines">
+                        <div class="placeholder-line short"></div>
+                        <div class="placeholder-line"></div>
+                    </div>
+                    {% endif %}
+                </li>
+            {% endfor %}
         </ul>
         <a class="card-link" href="/list">View the lineup</a>
     </div>
 </section>
+
+{% if not session.get('user') %}
+<div class="auth-callout">
+    <div>
+        <p class="eyebrow">Heads up</p>
+        <h3>Log in to access party submissions and the live feed.</h3>
+        <p class="small">You'll need an account to add to the list or post in the feed once those features are enabled.</p>
+    </div>
+    <div class="callout-actions">
+        <a class="btn primary" href="/login">Log in</a>
+        <a class="btn ghost" href="/register">Create account</a>
+    </div>
+</div>
+{% endif %}
 
 <section class="section">
     <div class="section-header">

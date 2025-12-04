@@ -6,5 +6,18 @@
 <div class="container">
     <h1>Party Feed</h1>
     <p>See what's happening in the Harvard party scene right now.</p>
+    {% if not session.get('user') %}
+    <div class="auth-callout">
+        <div>
+            <p class="eyebrow">Access required</p>
+            <h3>Log in to post or interact with the feed.</h3>
+            <p class="small">Posting updates and commenting will require an account.</p>
+        </div>
+        <div class="callout-actions">
+            <a class="btn primary" href="/login">Log in</a>
+            <a class="btn ghost" href="/register">Register</a>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
