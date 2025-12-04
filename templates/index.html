@@ -1,17 +1,119 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flask App</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Welcome to Flask!</h1>
-        <p id="message"></p>
-        <button onclick="fetchData()">Load Data</button>
+{% extends "template.html" %}
+
+{% block title %}What's The Move - Harvard{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <p class="eyebrow">What's The Move Harvard</p>
+        <h1>Find the best parties and events happening around campus.</h1>
+        <p class="lead">WTM Harvard is your ultimate party aggregator for Harvard University. We surface the can’t-miss parties, events, and social gatherings happening on campus and around the Square.</p>
+        <div class="cta-group">
+            <a class="btn primary" href="/list">See upcoming parties</a>
+            <a class="btn ghost" href="/feed">Open live feed</a>
+        </div>
+        <div class="meta">
+            <div>
+                <span class="meta-label">Live now</span>
+                <p class="meta-value">Campus-wide party intel, updated daily</p>
+            </div>
+            <div>
+                <span class="meta-label">Built for Harvard</span>
+                <p class="meta-value">Curated by students, tailored to your night</p>
+            </div>
+        </div>
     </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
+    <div class="hero-card">
+        <div class="card-header">
+            <p>Tonight's vibe</p>
+            <span class="pill">Template</span>
+        </div>
+        <ul class="card-list">
+            <li>
+                <div>
+                    <h3>Template</h3>
+                    <p>Real events will appear here when added.</p>
+                </div>
+                <span class="tag hot">Template</span>
+            </li>
+            <li>
+                <div>
+                    <h3>Template</h3>
+                    <p>Replace this with a live party update.</p>
+                </div>
+                <span class="tag mellow">Template</span>
+            </li>
+            <li>
+                <div>
+                    <h3>Template</h3>
+                    <p>Hook up your data and swap this card.</p>
+                </div>
+                <span class="tag official">Template</span>
+            </li>
+        </ul>
+        <a class="card-link" href="/list">View the lineup</a>
+    </div>
+</section>
+
+<section class="section">
+    <div class="section-header">
+        <p class="eyebrow">Why WTM</p>
+        <h2>Never miss the move again</h2>
+        <p>WTM keeps Harvard students plugged in with curated picks, last-minute drops, and on-the-ground updates so you know where to go and when.</p>
+    </div>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>Curated for Harvard</h3>
+            <p>Everything is selected with the campus crowd in mind, from big parties to intimate hangs.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Real-time feed</h3>
+            <p>Check the live feed for fresh tips, changes, and photos before you head out.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Plan your night</h3>
+            <p>Skim the lineup, pick your vibe, and move with confidence between Cambridge and Allston.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section alt">
+    <div class="section-header">
+        <p class="eyebrow">How it works</p>
+        <h2>Your night in three steps</h2>
+    </div>
+    <div class="steps">
+        <div class="step">
+            <span class="step-number">01</span>
+            <div>
+                <h3>Scan the parties</h3>
+                <p>Start with the Parties page to see what’s on deck this week.</p>
+            </div>
+        </div>
+        <div class="step">
+            <span class="step-number">02</span>
+            <div>
+                <h3>Check the feed</h3>
+                <p>Peek at the live feed for updates, lines, and last-minute additions.</p>
+            </div>
+        </div>
+        <div class="step">
+            <span class="step-number">03</span>
+            <div>
+                <h3>Make the move</h3>
+                <p>Pick your spot and head out—WTM keeps you ahead of the crowd.</p>
+            </div>
+        </div>
+    </div>
+    <div class="cta-banner">
+        <div>
+            <p class="eyebrow">Ready to go?</p>
+            <h3>See where the night is headed.</h3>
+        </div>
+        <div class="cta-actions">
+            <a class="btn primary" href="/list">Browse parties</a>
+            <a class="btn ghost" href="/about">Learn about WTM</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -6,14 +6,22 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/api/data', methods=['GET'])
-def get_data():
-    return jsonify({'message': 'Hello from Flask!'})
+@app.route('/list')
+def list_page():
+    return render_template('list.html')
 
-@app.route('/api/data', methods=['POST'])
-def post_data():
-    data = request.get_json()
-    return jsonify({'received': data}), 201
+@app.route('/feed')
+def feed():
+    return render_template('feed.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
