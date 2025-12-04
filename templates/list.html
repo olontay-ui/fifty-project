@@ -13,7 +13,7 @@
     <div class="party-list">
         {% if parties and parties|length > 0 %}
             {% for party in parties %}
-            <a class="party-card party-card-link" href="/party/{{ party['id'] }}">
+            <div class="party-card">
                 <div class="party-card-header">
                     <h3>{{ party['party_name'] }}</h3>
                     <div class="party-date">{{ party['date'] }} @ {{ party['time'] }}</div>
@@ -22,7 +22,7 @@
                 {% if party['description'] %}
                 <p>{{ party['description'] }}</p>
                 {% endif %}
-            </a>
+            </div>
             {% endfor %}
         {% else %}
             <p>No parties have been added yet.</p>
