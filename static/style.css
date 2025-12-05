@@ -626,6 +626,28 @@ input:focus, textarea:focus, select:focus {
     justify-content: flex-end;
 }
 
+.party-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.party-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.party-detail-card {
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+    padding: 14px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .nav-container {

@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from datetime import datetime
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -14,15 +15,65 @@ def get_db_connection():
     return conn
 
 
+def init_db():
+    conn = get_db_connection()
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS parties (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            host_name TEXT NOT NULL,
+            party_name TEXT NOT NULL,
+            location TEXT NOT NULL,
+            date TEXT NOT NULL,
+            time TEXT NOT NULL,
+            description TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+        """
+    )
+    conn.commit()
+    conn.close()
+
+
+init_db()
+
 
 def current_user():
     if 'user_id' in session:
         return {'id': session['user_id'], 'email': session.get('user')}
     return None
 
+
+def get_upcoming_parties(limit=3):
+    conn = get_db_connection()
+    parties = conn.execute(
+        """
+        SELECT p.id,
+               p.party_name,
+               p.location,
+               p.date,
+               p.time,
+               p.description,
+               p.host_name,
+               p.created_at,
+               u.username AS created_by
+        FROM parties p
+        JOIN users u ON p.user_id = u.id
+        WHERE datetime(p.date || ' ' || p.time) >= datetime('now', 'localtime')
+        ORDER BY datetime(p.date || ' ' || p.time)
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
+    conn.close()
+    return parties
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    upcoming = get_upcoming_parties(limit=3)
+    return render_template('index.html', upcoming_parties=upcoming)
 
 @app.route('/list')
 def list_page():
@@ -45,6 +96,32 @@ def list_page():
     ).fetchall()
     conn.close()
     return render_template('list.html', parties=parties)
+
+
+@app.route('/party/<int:party_id>')
+def party_detail(party_id):
+    conn = get_db_connection()
+    party = conn.execute(
+        """
+        SELECT p.id,
+               p.party_name,
+               p.location,
+               p.date,
+               p.time,
+               p.description,
+               p.host_name,
+               p.created_at,
+               u.username AS created_by
+        FROM parties p
+        JOIN users u ON p.user_id = u.id
+        WHERE p.id = ?
+        """,
+        (party_id,),
+    ).fetchone()
+    conn.close()
+    if not party:
+        return redirect(url_for('list_page'))
+    return render_template('party_detail.html', party=party)
 
 @app.route('/feed')
 def feed():
@@ -111,9 +188,12 @@ def logout():
     return redirect(url_for('index'))
 
 
-@app.route('/parties', methods=['POST'])
+@app.route('/add', methods=['GET', 'POST'])
 def add_party():
     user = current_user()
+    if request.method == 'GET':
+        return render_template('add.html', user=user)
+
     if not user:
         return redirect(url_for('login_page'))
 
@@ -125,7 +205,7 @@ def add_party():
     description = request.form.get('description', '')
 
     if not all([host_name, party_name, location, date, time]):
-        return redirect(url_for('list_page'))
+        return render_template('add.html', user=user, error="All fields except description are required.")
 
     conn = get_db_connection()
     conn.execute(
