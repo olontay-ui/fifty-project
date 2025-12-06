@@ -1,0 +1,16 @@
+{% extends "template.html" %}
+
+{% block content %}
+<h2>My Wishlist</h2>
+{% if message %}
+    <p>{{ message }}</p>
+{% else %}
+    <ul>
+        {% for party in parties %}
+            <li>
+                <strong>{{ party.party_name }}</strong> - {{ party.location }} on {{ party.date }} at {{ party.time }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endblock %}

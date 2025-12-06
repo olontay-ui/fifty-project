@@ -75,28 +75,6 @@ def index():
     upcoming = get_upcoming_parties(limit=3)
     return render_template('index.html', upcoming_parties=upcoming)
 
-@app.route('/list')
-def list_page():
-    conn = get_db_connection()
-    parties = conn.execute(
-        """
-        SELECT p.id,
-               p.party_name,
-               p.location,
-               p.date,
-               p.time,
-               p.description,
-               p.host_name,
-               p.created_at,
-               u.username AS created_by
-        FROM parties p
-        JOIN users u ON p.user_id = u.id
-        ORDER BY p.date, p.time
-        """
-    ).fetchall()
-    conn.close()
-    return render_template('list.html', parties=parties)
-
 
 @app.route('/party/<int:party_id>')
 def party_detail(party_id):
@@ -277,6 +255,150 @@ def delete_party(party_id):
     conn.close()
     return redirect(url_for('list_page'))
 
+# Add this function after the init_db() function to create the wishlist table
+
+def init_wishlist_table():
+    conn = get_db_connection()
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS wishlist (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            party_id INTEGER NOT NULL,
+            added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id),
+            FOREIGN KEY (party_id) REFERENCES parties(id) ON DELETE CASCADE,
+            UNIQUE(user_id, party_id)
+        );
+        """
+    )
+    conn.commit()
+    conn.close()
+
+# Call this after init_db()
+init_wishlist_table()
+
+
+# Add this helper function to get user's wishlist party IDs
+def get_user_wishlist_ids(user_id):
+    """Returns a set of party IDs that are in the user's wishlist"""
+    if not user_id:
+        return set()
+    
+    conn = get_db_connection()
+    wishlist_items = conn.execute(
+        "SELECT party_id FROM wishlist WHERE user_id = ?",
+        (user_id,)
+    ).fetchall()
+    conn.close()
+    
+    return {item['party_id'] for item in wishlist_items}
+
+
+# Update your list_page route to include wishlist data
+@app.route('/list')
+def list_page():
+    user = current_user()
+    conn = get_db_connection()
+    parties = conn.execute(
+        """
+        SELECT p.id,
+               p.party_name,
+               p.location,
+               p.date,
+               p.time,
+               p.description,
+               p.host_name,
+               p.created_at,
+               u.username AS created_by
+        FROM parties p
+        JOIN users u ON p.user_id = u.id
+        ORDER BY p.date, p.time
+        """
+    ).fetchall()
+    conn.close()
+    
+    # Get user's wishlist IDs
+    user_wishlist = get_user_wishlist_ids(user['id']) if user else set()
+    
+    return render_template('list.html', parties=parties, user=user, user_wishlist=user_wishlist)
+
+
+# Add the wishlist page route
+@app.route('/wishlist')
+def wishlist_page():
+    user = current_user()
+    if not user:
+        return redirect(url_for('login_page'))
+    
+    conn = get_db_connection()
+    parties = conn.execute(
+        """
+        SELECT p.id,
+               p.party_name,
+               p.location,
+               p.date,
+               p.time,
+               p.description,
+               p.host_name,
+               p.created_at,
+               u.username AS created_by,
+               w.added_at
+        FROM wishlist w
+        JOIN parties p ON w.party_id = p.id
+        JOIN users u ON p.user_id = u.id
+        WHERE w.user_id = ?
+        ORDER BY w.added_at DESC
+        """,
+        (user['id'],)
+    ).fetchall()
+    conn.close()
+    
+    message = "You haven't added any parties to your wishlist yet." if not parties else None
+    
+    return render_template('wishlist.html', parties=parties, message=message, user=user)
+
+
+# Add the toggle wishlist route (AJAX endpoint)
+@app.route('/party/<int:party_id>/wishlist', methods=['POST'])
+def toggle_wishlist(party_id):
+    user = current_user()
+    if not user:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    conn = get_db_connection()
+    
+    # Check if party exists
+    party = conn.execute("SELECT id FROM parties WHERE id = ?", (party_id,)).fetchone()
+    if not party:
+        conn.close()
+        return jsonify({'error': 'Party not found'}), 404
+    
+    # Check if already in wishlist
+    existing = conn.execute(
+        "SELECT id FROM wishlist WHERE user_id = ? AND party_id = ?",
+        (user['id'], party_id)
+    ).fetchone()
+    
+    if existing:
+        # Remove from wishlist
+        conn.execute(
+            "DELETE FROM wishlist WHERE user_id = ? AND party_id = ?",
+            (user['id'], party_id)
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({'action': 'removed', 'party_id': party_id})
+    else:
+        # Add to wishlist
+        conn.execute(
+            "INSERT INTO wishlist (user_id, party_id) VALUES (?, ?)",
+            (user['id'], party_id)
+        )
+        conn.commit()
+        conn.close()
+        return jsonify({'action': 'added', 'party_id': party_id})
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

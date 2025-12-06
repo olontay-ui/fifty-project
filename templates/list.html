@@ -1,7 +1,5 @@
 {% extends "template.html" %}
-
 {% block title %}Parties - WTM Harvard{% endblock %}
-
 {% block content %}
 <div class="container">
     <h1>Upcoming Parties</h1>
@@ -9,24 +7,84 @@
     <div class="list-actions">
         <a class="btn primary" href="/add">Add a party</a>
     </div>
-
     <div class="party-list">
         {% if parties and parties|length > 0 %}
             {% for party in parties %}
-            <a class="party-card party-card-link" href="/party/{{ party['id'] }}">
-                <div class="party-card-header">
-                    <h3>{{ party['party_name'] }}</h3>
-                    <div class="party-date">{{ party['date'] }} @ {{ party['time'] }}</div>
-                </div>
-                <p class="party-meta">Hosted by {{ party['host_name'] }} • {{ party['location'] }}</p>
-                {% if party['description'] %}
-                <p>{{ party['description'] }}</p>
-                {% endif %}
-            </a>
+            <div class="party-card">
+<!-- Heart Wishlist Button (stops click from opening the party card link) -->
+                <button 
+                    class="wishlist-btn" 
+                    data-party-id="{{ party.id }}"
+                >
+                    {% if user_wishlist and party.id in user_wishlist %}
+                        ❤️
+                    {% else %}
+                        🤍
+                    {% endif %}
+                </button>
+<!-- Entire card remains clickable -->
+                <a class="party-card-link" href="/party/{{ party['id'] }}">
+                    <div class="party-card-header">
+                        <h3>{{ party['party_name'] }}</h3>
+                        <div class="party-date">{{ party['date'] }} @ {{ party['time'] }}</div>
+                    </div>
+                    <p class="party-meta">Hosted by {{ party['host_name'] }} • {{ party['location'] }}</p>
+                    {% if party['description'] %}
+                    <p>{{ party['description'] }}</p>
+                    {% endif %}
+                </a>
+            </div>
             {% endfor %}
         {% else %}
             <p>No parties have been added yet.</p>
         {% endif %}
     </div>
 </div>
+<!-- AJAX script for toggling wishlist -->
+<script>
+function toggleWishlist(partyId) {
+    fetch(`/party/${partyId}/wishlist`, {
+        method: 'POST'
+    })
+    .then(res => res.json())
+    .then(data => {
+        const btn = document.querySelector(`button[data-party-id='${partyId}']`);
+        if (data.action === 'added') {
+            btn.textContent = "❤️";
+        } else {
+            btn.textContent = "🤍";
+        }
+    })
+    .catch(err => console.error(err));
+}
+</script>
+<script>
+// Event delegation for wishlist buttons
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.wishlist-btn').forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.stopPropagation();
+            event.preventDefault();
+            const partyId = this.getAttribute('data-party-id');
+            toggleWishlist(partyId);
+        });
+    });
+});
+
+function toggleWishlist(partyId) {
+    fetch(`/party/${partyId}/wishlist`, {
+        method: 'POST'
+    })
+    .then(res => res.json())
+    .then(data => {
+        const btn = document.querySelector(`button[data-party-id='${partyId}']`);
+        if (data.action === 'added') {
+            btn.textContent = "❤️";
+        } else {
+            btn.textContent = "🤍";
+        }
+    })
+    .catch(err => console.error(err));
+}
+</script>
 {% endblock %}
