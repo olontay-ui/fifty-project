@@ -104,6 +104,7 @@ def party_detail(party_id):
     party = conn.execute(
         """
         SELECT p.id,
+               p.user_id,
                p.party_name,
                p.location,
                p.date,
@@ -218,6 +219,62 @@ def add_party():
     conn.commit()
     conn.close()
 
+    return redirect(url_for('list_page'))
+
+
+@app.route('/party/<int:party_id>/edit', methods=['GET', 'POST'])
+def edit_party(party_id):
+    user = current_user()
+    if not user:
+        return redirect(url_for('login_page'))
+
+    conn = get_db_connection()
+    party = conn.execute("SELECT * FROM parties WHERE id = ?", (party_id,)).fetchone()
+
+    # Permission check - ensure that only creator can edit
+    if not party or party['user_id'] != user['id']:
+        conn.close()
+        return redirect(url_for('party_detail', party_id=party_id))
+
+    if request.method == 'POST':
+        host_name = request.form.get('host_name')
+        party_name = request.form.get('party_name')
+        location = request.form.get('location')
+        date = request.form.get('date')
+        time = request.form.get('time')
+        description = request.form.get('description')
+
+        conn.execute(
+            """
+            UPDATE parties
+            SET host_name = ?, party_name = ?, location = ?, date = ?, time = ?, description = ?
+            WHERE id = ?
+            """,
+            (host_name, party_name, location, date, time, description, party_id)
+        )
+        conn.commit()
+        conn.close()
+        return redirect(url_for('party_detail', party_id=party_id))
+
+    conn.close()
+    return render_template('edit_party.html', party=party, user=user)
+
+
+@app.route('/party/<int:party_id>/delete', methods=['POST'])
+def delete_party(party_id):
+    user = current_user()
+    if not user:
+        return redirect(url_for('login_page'))
+
+    conn = get_db_connection()
+    party = conn.execute("SELECT * FROM parties WHERE id = ?", (party_id,)).fetchone()
+
+    # Permission check: ensure only user who created can delete
+    if party and party['user_id'] == user['id']:
+        conn.execute("DELETE FROM parties WHERE id = ?", (party_id,))
+        conn.commit()
+
+    conn.close()
     return redirect(url_for('list_page'))
 
 

@@ -1,0 +1,46 @@
+{% extends "template.html" %}
+
+{% block title %}Edit Party - WTM Harvard{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Edit Party</h1>
+
+    <form method="POST" class="party-form">
+
+        <div class="form-field">
+            <label for="host_name">Host Name</label>
+            <input type="text" id="host_name" name="host_name" value="{{ party.host_name }}" required> 
+        </div>
+
+        <div class="form-field">
+            <label for="party_name">Party Name</label>
+            <input type="text" id="party_name" name="party_name" value="{{ party.party_name }}" required>
+        </div>
+
+        <div class="form-field">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" value="{{ party.location }}" required>
+        </div>
+
+        <div class="form-field">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" value="{{ party.date }}" required>
+        </div>
+
+        <div class="form-field">
+            <label for="time">Time</label>
+            <input type="time" id="time" name="time" value="{{ party.time }}" required>
+        </div>
+
+        <div class="form-field">
+            <label for="description">Description</label>
+            <textarea id="description" name="description">{{ party.description }}</textarea>
+        </div>
+       
+        <button type="submit" class="btn-primary">Save Changes</button>
+        <a href="{{ url_for('party_detail', party_id=party.id) }}" class="btn-secondary">Cancel</a>
+
+    </form>
+</div>
+{% endblock %}
