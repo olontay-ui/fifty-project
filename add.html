@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1>Add a New Party</h1>
+        
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        
+        <form action="/add" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="host_name" class="form-label">Host Name <small class="text-muted">(Must match your username: {{ user.username }})</small></label>
+                <input type="text" class="form-control" id="host_name" name="host_name" 
+                       value="{{ user.username if user else '' }}" required>
+                <small class="text-muted">This security feature ensures you're the actual host.</small>
+            </div>
+            
+            <div class="mb-3">
+                <label for="party_name" class="form-label">Party Name</label>
+                <input type="text" class="form-control" id="party_name" name="party_name" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="location" class="form-label">Location</label>
+                <input type="text" class="form-control" id="location" name="location" 
+                       placeholder="e.g., Harvard Square, Lowell House, etc." required>
+                <small class="text-muted">Enter a Harvard location for map placement</small>
+            </div>
+            
+            <div class="mb-3">
+                <label for="date" class="form-label">Date</label>
+                <input type="date" class="form-control" id="date" name="date" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="time" class="form-label">Time</label>
+                <input type="time" class="form-control" id="time" name="time" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="flyer" class="form-label">Party Flyer/Photo (Optional)</label>
+                <input type="file" class="form-control" id="flyer" name="flyer" accept="image/*">
+                <small class="text-muted">Upload a flyer or photo for your party (PNG, JPG, GIF - Max 16MB)</small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Create Party</button>
+            <a href="/list" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+{% endblock %}

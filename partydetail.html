@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8">
+                <h1>{{ party.party_name }}</h1>
+                
+                <div class="card mb-3">
+                    {% if party.flyer_path %}
+                        <img src="/static/{{ party.flyer_path }}" 
+                             class="card-img-top" 
+                             alt="{{ party.party_name }} flyer">
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            Hosted by: {{ party.verified_host }}
+                            <span class="badge bg-success">✓ Verified Host</span>
+                        </h5>
+                        <p class="card-text">
+                            <strong>Location:</strong> {{ party.location }}<br>
+                            <strong>Date:</strong> {{ party.date }}<br>
+                            <strong>Time:</strong> {{ party.time }}<br>
+                            <strong>Posted:</strong> {{ party.created_at }}
+                        </p>
+                        
+                        {% if party.description %}
+                            <hr>
+                            <h6>Description</h6>
+                            <p>{{ party.description }}</p>
+                        {% endif %}
+                        
+                        <div class="alert alert-info">
+                            <small>
+                                <strong>Security Note:</strong> This party was created by a verified user. 
+                                The host name "{{ party.host_name }}" matches the verified username "{{ party.verified_host }}".
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if user and user.id == party.user_id %}
+                    <div class="btn-group mb-3" role="group">
+                        <a href="/party/{{ party.id }}/edit" class="btn btn-warning">Edit Party</a>
+                        <form action="/party/{{ party.id }}/delete" method="post" class="d-inline"
+                              onsubmit="return confirm('Are you sure you want to delete this party?');">
+                            <button type="submit" class="btn btn-danger">Delete Party</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-4">
+                <!-- Map showing party location -->
+                {% if party.latitude and party.longitude %}
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6>Location on Map</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="partyMap" style="height: 300px; width: 100%;"></div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <a href="/list" class="btn btn-secondary w-100">Back to All Parties</a>
+            </div>
+        </div>
+    </div>
+    
+    {% if party.latitude and party.longitude %}
+        <!-- Leaflet CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        
+        <!-- Leaflet JS -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        
+        <script>
+            // Initialize map for this specific party
+            var map = L.map('partyMap').setView([{{ party.latitude }}, {{ party.longitude }}], 16);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // Add marker for this party
+            L.marker([{{ party.latitude }}, {{ party.longitude }}])
+                .addTo(map)
+                .bindPopup('<strong>{{ party.party_name }}</strong><br>{{ party.location }}')
+                .openPopup();
+        </script>
+    {% endif %}
+{% endblock %}

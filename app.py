@@ -3,11 +3,27 @@ import sqlite3
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename #S
 
 # Implement Flask and our database wtm.db
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret')
 DATABASE = os.environ.get('DATABASE_URL', 'wtm.db')
+
+# Configure some of the file uploads - s
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size 
+
+# Create uploads directory if it doesn't exist - s 
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(os.path.join(UPLOAD_FOLDER, 'posts'), exist_ok=True)
+os.makedirs(os.path.join(UPLOAD_FOLDER, 'parties'), exist_ok=True)
+
+# Helper function to check allowed file types - s
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Connect to wtm.db
 def get_db_connection():
@@ -204,6 +220,37 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('index'))
 
+# This is the Harvard Square location coordinates for geocoding - S
+HARVARD_SQUARE_LOCATIONS = {
+    'harvard square': (42.3736, -71.1190),
+    'harvard yard': (42.3744, -71.1169),
+    'widener library': (42.3744, -71.1167),
+    'memorial hall': (42.3759, -71.1149),
+    'science center': (42.3764, -71.1173),
+    'annenberg': (42.3762, -71.1150),
+    'lowell house': (42.3708, -71.1223),
+    'adams house': (42.3717, -71.1211),
+    'quincy house': (42.3719, -71.1205),
+    'leverett house': (42.3716, -71.1194),
+    'mather house': (42.3697, -71.1142),
+    'dunster house': (42.3691, -71.1184),
+    'eliot house': (42.3707, -71.1218),
+    'kirkland house': (42.3721, -71.1230),
+    'winthrop house': (42.3715, -71.1203),
+    'pforzheimer house': (42.3824, -71.1246),
+    'cabot house': (42.3818, -71.1252),
+    'currier house': (42.3818, -71.1251),
+}
+
+def geocode_location(location):
+    """Simple geocoding for Harvard locations"""
+    location_lower = location.lower().strip()
+    for key, coords in HARVARD_SQUARE_LOCATIONS.items():
+        if key in location_lower:
+            return coords
+    # Default to Harvard Square if location not found
+    return (42.3736, -71.1190)
+
 
 # Allows user to add party and party details
 @app.route('/add', methods=['GET', 'POST'])
@@ -224,14 +271,40 @@ def add_party():
 
     if not all([host_name, party_name, location, date, time]):
         return render_template('add.html', user=user, error="All fields except description are required.")
+    
+    # This is the Security Feature to verify host name matches users display name - S
 
     conn = get_db_connection()
+    #S 
+    user_data = conn.execute("SELECT display_name FROM users WHERE id = ?", (user['id'],)).fetchone()
+    
+    if user_data['display_name'].lower() != host_name.lower():
+        conn.close()
+        return render_template('add.html', user=user, 
+                             error=f"Host name must match your username ({user_data['display_name']}) to verify you are the actual host.")
+    
+    # Handle the flyer upload - S
+    flyer_path = None 
+    if 'flyer' in request.files:
+        file = request.files['flyer']
+        if file and file.filename != '' and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            # Create unique filename with timestamp
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"{timestamp}_{filename}"
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'parties', filename)
+            file.save(filepath)
+            flyer_path = f'uploads/parties/{filename}'
+    
+    # Geocode location to get coordinates - S
+    latitude, longitude = geocode_location(location)
+    
     conn.execute(
         """
-        INSERT INTO parties (user_id, host_name, party_name, location, date, time, description)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO parties (user_id, host_name, party_name, location, latitude, longitude, date, time, description, flyer_path)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (user['id'], host_name, party_name, location, date, time, description),
+        (user['id'], host_name, party_name, location, latitude, longitude, date, time, description, flyer_path),
     )
     conn.commit()
     conn.close()  # Inserts new party into the parties database on wtm.db
@@ -261,14 +334,38 @@ def edit_party(party_id):
         date = request.form.get('date')
         time = request.form.get('time')
         description = request.form.get('description')
+    
+    # Security Feature so that the host name still matches - S
+        user_data = conn.execute("SELECT display_name FROM users WHERE id = ?", (user['id'],)).fetchone()
+        
+        if user_data['display_name'].lower() != host_name.lower():
+            conn.close()
+            return render_template('edit_party.html', party=party, user=user,
+                                error=f"Host name must match your username ({user_data['display_name']}).")
+        
+        # Handle flyer upload - S
+        flyer_path = party['flyer_path']
+        if 'flyer' in request.files:
+            file = request.files['flyer']
+            if file and file.filename != '' and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                filename = f"{timestamp}_{filename}"
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'parties', filename)
+                file.save(filepath)
+                flyer_path = f'uploads/parties/{filename}'
+        
+        # Geocode location
+        latitude, longitude = geocode_location(location)
 
         conn.execute(
             """
             UPDATE parties
-            SET host_name = ?, party_name = ?, location = ?, date = ?, time = ?, description = ?
+            SET host_name = ?, party_name = ?, location = ?, latitude = ?, longitude = ?, 
+                date = ?, time = ?, description = ?, flyer_path = ?
             WHERE id = ?
             """,
-            (host_name, party_name, location, date, time, description, party_id)
+            (host_name, party_name, location, latitude, longitude, date, time, description, flyer_path, party_id)
         )
         conn.commit()
         conn.close()
@@ -410,11 +507,23 @@ def create_post():
     content = request.form.get('content', '').strip()
     if not content:
         return jsonify({'error': 'Post content cannot be empty'}), 400  # There must be content in the post
+
+    # Handle photo upload for posts -S
+    photo_path = None
+    if 'photo' in request.files:
+        file = request.files['photo']
+        if file and file.filename != '' and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"{timestamp}_{filename}"
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'posts', filename)
+            file.save(filepath)
+            photo_path = f'uploads/posts/{filename}'
     
     conn = get_db_connection()
     conn.execute(
-        "INSERT INTO posts (user_id, content) VALUES (?, ?)",
-        (user['id'], content)
+        "INSERT INTO posts (user_id, content, photo_path) VALUES (?, ?, ?)",
+        (user['id'], content, photo_path)
     )
     conn.commit()
     conn.close()   # Adds the post to the posts table
@@ -434,6 +543,7 @@ def view_post(post_id):
         SELECT p.id,
                p.user_id,
                p.content,
+               p.photo_path,
                p.created_at,
                u.display_name AS username
         FROM posts p
@@ -615,12 +725,16 @@ def list_page():
         SELECT p.id,
                p.party_name,
                p.location,
+               p.latitude,
+               p.longitude,
                p.date,
                p.time,
                p.description,
                p.host_name,
+               p.flyer_path,
                p.created_at,
-               u.username AS created_by
+               u.username AS created_by,
+               u.display_name AS verified_host
         FROM parties p
         JOIN users u ON p.user_id = u.id
         ORDER BY p.date, p.time
@@ -633,6 +747,45 @@ def list_page():
     
     return render_template('list.html', parties=parties, user=user, user_wishlist=user_wishlist)
 
+# API endpoint to get party locations for map - S
+@app.route('/api/parties/map')
+def parties_map_data():
+    conn = get_db_connection()
+    parties = conn.execute(
+        """
+        SELECT p.id,
+               p.party_name,
+               p.location,
+               p.latitude,
+               p.longitude,
+               p.date,
+               p.time,
+               u.display_name AS verified_host
+        FROM parties p
+        JOIN users u ON p.user_id = u.id
+        WHERE datetime(p.date || ' ' || p.time) >= datetime('now', 'localtime')
+        AND p.latitude IS NOT NULL
+        AND p.longitude IS NOT NULL
+        ORDER BY datetime(p.date || ' ' || p.time)
+        """
+    ).fetchall()
+    conn.close()
+    
+    # Convert to JSON format - S
+    parties_data = []
+    for party in parties:
+        parties_data.append({
+            'id': party['id'],
+            'name': party['party_name'],
+            'location': party['location'],
+            'latitude': party['latitude'],
+            'longitude': party['longitude'],
+            'date': party['date'],
+            'time': party['time'],
+            'host': party['verified_host']
+        })
+    
+    return jsonify(parties_data)
 
 # This creates a wishlist page on the website
 @app.route('/wishlist')
@@ -651,8 +804,10 @@ def wishlist_page():
                p.time,
                p.description,
                p.host_name,
+               p.flyer_path,
                p.created_at,
                u.username AS created_by,
+               u.display_name AS verified_host,
                w.added_at
         FROM wishlist w
         JOIN parties p ON w.party_id = p.id
