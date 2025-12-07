@@ -1,2 +1,4 @@
 # What's The Move Harvard: An On-Capus Social Calendar
 Hello, and welcome to our website, WTM Harvard! Have you ever found yourself wondering how you'll spend your free evening, or what parties are going on at campus? Well, you're in luck, because WTM Harvard is our social website where users can post about parties going on.
+
+Documentation for your project in the form of a Markdown file called README.md. This documentation is to be a user’s manual for your project. Though the structure of your documentation is entirely up to you, it should be incredibly clear to the staff how and where, if applicable, to compile, configure, and use your project. Your documentation should be at least several paragraphs in length. It should not be necessary for us to contact you with questions regarding your project after its submission. Hold our hand with this documentation; be sure to answer in your documentation any questions that you think we might have while testing your work.
