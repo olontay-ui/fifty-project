@@ -1,23 +1,72 @@
 {% extends "template.html" %}
 
-{% block title %}Feed - WTM Harvard{% endblock %}
+{% block title %}Feed{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Party Feed</h1>
-    <p>See what's happening in the Harvard party scene right now.</p>
-    {% if not session.get('user') %}
-    <div class="auth-callout">
-        <div>
-            <p class="eyebrow">Access required</p>
-            <h3>Log in to post or interact with the feed.</h3>
-            <p class="small">Posting updates and commenting will require an account.</p>
-        </div>
-        <div class="callout-actions">
-            <a class="btn primary" href="/login">Log in</a>
-            <a class="btn ghost" href="/register">Register</a>
+<div class="container mt-4">
+    <h1 class="mb-4">Community Feed</h1>
+
+    {% if session.get('user') %}
+    <!-- Post creation form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Share something with the community</h5>
+            <form action="{{ url_for('create_post') }}" method="post">
+                <div class="mb-3">
+                    <textarea 
+                        class="form-control" 
+                        name="content" 
+                        rows="3" 
+                        placeholder="What's on your mind?" 
+                        required
+                        maxlength="1000"
+                    ></textarea>
+                    <div class="form-text">Maximum 1000 characters</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Post</button>
+            </form>
         </div>
     </div>
+    {% else %}
+    <div class="alert alert-info mb-4">
+        <a href="{{ url_for('login_page') }}">Log in</a> to post and comment!
+    </div>
     {% endif %}
+
+    <!-- Posts feed -->
+    <div class="posts-container">
+        {% if posts %}
+            {% for post in posts %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h6 class="mb-0">{{ post.username }}</h6>
+                            <small class="text-muted">{{ post.created_at }}</small>
+                        </div>
+                        {% if session.get('user_id') == post.user_id %}
+                        <form action="{{ url_for('delete_post', post_id=post.id) }}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this post?');">
+                                Delete
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    <p class="card-text">{{ post.content }}</p>
+                    <div class="d-flex align-items-center">
+                        <a href="{{ url_for('view_post', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">
+                            💬 {{ post.comment_count }} Comments
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-secondary">
+                No posts yet. Be the first to share something!
+            </div>
+        {% endif %}
+    </div>
 </div>
+
 {% endblock %}

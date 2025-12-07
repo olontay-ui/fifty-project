@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}What's The Move (WTM) Harvard{% endblock %}</title>
+    <title>{% block title %}What's The Move (WTM) Harvard{% endblock %}</title>  <!-- Website title -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -31,7 +31,9 @@
             </ul>
             {% if session.get('user') %}
             <div class="nav-auth">
-                <span class="nav-user">{{ session.get('user') }}</span>
+                <!-- CHANGED: Show username instead of email -->
+                <span class="nav-user">{{ session.get('username', session.get('user')) }}</span>
+                <a href="/settings" class="nav-settings">Settings</a>
                 <a href="/logout" class="nav-login">Log Out</a>
             </div>
             {% else %}
@@ -39,15 +41,12 @@
             {% endif %}
         </div>
     </nav>
-
     <main class="content">
         {% block content %}{% endblock %}
     </main>
-
     <footer class="footer">
         <p>&copy; 2025 What's The Move Harvard. Find Your Next Move.</p>
     </footer>
-
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
