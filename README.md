@@ -1,6 +1,8 @@
 # What's The Move Harvard: An On-Campus Social Calendar
 Hello, and welcome to our website, WTM Harvard! Have you ever found yourself wondering how you'll spend your free evening, or what parties are going on at campus? Well, you're in luck, because WTM Harvard is our social website where users can post about parties going on.
 
+Here is the link to our project video: https://youtu.be/D95x4VkRx2c
+
 ## What is WTM Harvard?
 
 WTM Harvard is basically like a social but specifically for your Harvard parties and events. We built this website to solve a super common problem, trying to figure out what's happening on campus on any given night. Instead of scrolling through group chats or texting around to find out where the parties are, you can just check WTM Harvard. Anyone can create an account, post about parties they're hosting, browse what's happening and even save parties to a wishlist for later. We also added some really cool features such as a  interactive map that shows you exactly where parties are located around Harvard Square!
