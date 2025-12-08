@@ -3,9 +3,19 @@
 Welcome to WTM Harvard! Our website is made by students for students to find all of the best parties and social events going on at Harvard and the greater Cambridge-Allston area. Designed with your ease in mind, WTM Harvard is easy to navigate and interact with. Additionally, it is meant to be another social platform for Harvard students, where we can all keep each other in the loop and outside of our studies now and then. Below is each design feature of WTM Harvard's website, as well as the thought process that went behind implementing each.
 
 # Home
+The home page is where users land upon arriving on our website. It includes a few tables of fluff and infomation on how to use our website. The first div has a cool feature that directly reports parties posted previously. Users can click on them with a redirect to detailed party views through `href`. Users can also see all parties with a similar redirect.
 
+# Register/Login
+The register/login function works essentially the same way as it does in the finance pset - indeed, we took great design inspiration from that work. We store users' usernames in a sql database called `wtm.db` in a table called `users`, included pre-initialized as a part of the program. Their emails and hashed passwords are stored in the database and are used for authentication upon login.
 
 # Parties
+The parties page is the soul of our project. On this page, we essentially display the user a list of parties in a Jinja based HTML script. Within the table, we show the users very useful information for if they want to party. This includes the parties's name, the organizer, and location of the party. Essentially, the way we sort of the information is through quite simple SQL data base that we initiated within our own code base that carries onto the server.
+
+## Add party
+The way you add parties to the party tracker is through the specific add party function. The add party function only works when you're logged in; we check this through Flask's session function. If not logged in, users will be prompted to log in through a redirect to the login page. 
+
+## Detailed View
+When a party is clicked on, a detailed view of all the party information comes up. This is done through a redirect and a seperate template for the party detailed view. A cool feature of this detailed view is `edit` and `delete`, where users, if on a detailed view of *a party they created*, can edit and delete the party. 
 
 ## Interactive Party Map
 
@@ -19,7 +29,7 @@ For the actual map I used Leaflet.js with OpenStreetMap tiles. The JavaScript cr
 
 I chose a custom location dictionary over Google Maps API because: (1) Google costs money after you hit usage limits, (2) I don't depend on external services, and (3) for Harvard-specific locations, my curated list is actually more accurate. The tradeoff is it only works for predefined locations, but Harvard parties mostly happen at known spots anyway. I separated the API from the display so the data could be reused elsewhere and each piece of code does one job cleanly. I only show upcoming parties to keep the map relevant and performant.
 
-Host Verification Security System
+## Host Verification Security System
 
 The verification system akes sure that party creators are actually the hosts by requiring the host name to match the logged-in user's username. When someone submits the party form, my Flask route queries the database to get the current user's `display_name`, then compares it to the submitted `host_name` using case-insensitive matching (`.lower()` on both strings). If they don't match, I return an error page showing what their actual username is. This check happens on every party creation AND edit, preventing someone from creating a party correctly then editing it to change the host later.
 
@@ -32,6 +42,7 @@ I implemented this serverside instead of clientside because clientside JavaScrip
 
 
 # Feed
+
 
 ## Photo Upload System (Posts and Party Flyers)
 
@@ -46,6 +57,7 @@ For display the templates check if a photo path exists and if so, render an `<im
 I limited uploads to image types only (png, jpg, gif) to prevent users from uploading executable files, scripts, or other potentially dangerous content. The `secure_filename()` function removes characters that could be used for directory traversal attacks or file system exploits. I implemented file size limits to prevent abuse and manage server storage - someone could otherwise upload gigabyte-sized files and fill up the disk. Storing paths instead of binary data in the database keeps queries fast and lets the web server handle file serving efficiently. The decision to disallow photos in comments was about UX - if every comment could have photos, threads would get visually overwhelming and hard to follow. Posts deserve rich media, comments should stay conversational and text-focused.
 
 # About
+The about file is just a classic point for any software project. In this part of the webpage, we just have a quick description of what the motivation behind the project was and how to use it.
 
 # My Wishlist
 
