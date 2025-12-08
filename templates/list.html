@@ -5,15 +5,16 @@
     <h1>Upcoming Parties</h1>
     <p>Discover the best parties happening at Harvard this week.</p>
     
-    {% if session.get('user') %}
     <div class="list-actions">
+        <button class="btn ghost" id="toggle-map-btn" type="button">Show party map</button>
+        {% if session.get('user') %}
         <a class="btn primary" href="/add">Add a party</a>
+        {% endif %}
     </div>
-    {% endif %}
     
     <!-- Interactive Map -->
-    <div class="card mb-4">
-        <div class="card-header">
+    <div class="map-panel" id="map-panel" style="display: none;">
+        <div class="card-header" style="margin-bottom: 8px;">
             <h5>Party Map - Harvard Square</h5>
         </div>
         <div class="card-body">
@@ -84,36 +85,58 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    // Have a map centered on Harvard Square
-    var map = L.map('map').setView([42.3736, -71.1190], 15);
-    
-    // OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
-    }).addTo(map);
-    
-    // Get party locations and markers
-    fetch('/api/parties/map')
-        .then(response => response.json())
-        .then(parties => {
-            parties.forEach(party => {
-                if (party.latitude && party.longitude) {
-                    var marker = L.marker([party.latitude, party.longitude]).addTo(map);
-                    marker.bindPopup(`
-                        <strong>${party.name}</strong><br>
-                        Hosted by: ${party.host}<br>
-                        Location: ${party.location}<br>
-                        Date: ${party.date} at ${party.time}<br>
-                        <a href="/party/${party.id}">View Details</a>
-                    `);
-                }
-            });
-        })
-        .catch(error => console.error('Error loading party locations:', error));
-    
-    // Allow map to be edited from wishlist
+    let map;
+    let mapInitialized = false;
+
+    function initMap() {
+        if (mapInitialized) {
+            map.invalidateSize();
+            return;
+        }
+        map = L.map('map').setView([42.3736, -71.1190], 15);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        fetch('/api/parties/map')
+            .then(response => response.json())
+            .then(parties => {
+                parties.forEach(party => {
+                    if (party.latitude && party.longitude) {
+                        const marker = L.marker([party.latitude, party.longitude]).addTo(map);
+                        marker.bindPopup(`
+                            <strong>${party.name}</strong><br>
+                            Hosted by: ${party.host}<br>
+                            Location: ${party.location}<br>
+                            Date: ${party.date} at ${party.time}<br>
+                            <a href="/party/${party.id}">View Details</a>
+                        `);
+                    }
+                });
+            })
+            .catch(error => console.error('Error loading party locations:', error));
+
+        mapInitialized = true;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('toggle-map-btn');
+        const mapPanel = document.getElementById('map-panel');
+
+        toggleBtn.addEventListener('click', function() {
+            const isHidden = mapPanel.style.display === 'none' || mapPanel.style.display === '';
+            if (isHidden) {
+                mapPanel.style.display = 'block';
+                toggleBtn.textContent = 'Hide party map';
+                initMap();
+            } else {
+                mapPanel.style.display = 'none';
+                toggleBtn.textContent = 'Show party map';
+            }
+        });
+
         document.querySelectorAll('.wishlist-btn').forEach(button => {
             button.addEventListener('click', function(event) {
                 event.stopPropagation();

@@ -624,6 +624,7 @@ input:focus, textarea:focus, select:focus {
     margin: 12px 0;
     display: flex;
     justify-content: flex-end;
+    gap: 10px;
 }
 
 .party-detail-header {
