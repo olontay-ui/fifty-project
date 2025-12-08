@@ -1,4 +1,4 @@
-# What's The Move Harvard: An On-Capus Social Calendar
+# What's The Move Harvard: An On-Campus Social Calendar
 Hello, and welcome to our website, WTM Harvard! Have you ever found yourself wondering how you'll spend your free evening, or what parties are going on at campus? Well, you're in luck, because WTM Harvard is our social website where users can post about parties going on.
 
 ## What is WTM Harvard?
