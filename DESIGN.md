@@ -39,10 +39,19 @@ On the frontend, I display a green "✓ Verified Host" badge on all parties. Sin
 
 I implemented this serverside instead of clientside because clientside JavaScript can be bypassed by anyone who opens browser dev tools. Serverside validation is authoritative - it controls what gets saved to the database. The tradeoff is less flexibility (you can't create parties on behalf of groups or other people), but I decided authenticity and trust were more important than convenience. Case insensitive matching (`kelly` = `Kelly`) is userfriendly without compromising any of the security since usernames aren't case sensitive anyway. Pre filling the host name field improves UX while the error message with the actual username prevents frustration from users who don't remember their exact username.
 
-
-
 # Feed
 
+## Live community feed
+
+The live community feed is an important feature that allows users to not only create posts and comments, but to respond to other posts and comments in the feed. As for the database structure of the feed, there are two tables stored under wtm.db: posts, and comments. Posts stores the user's post with its id, content, any photos, and a timestamp. Comments stores a user's comment with its id, content, and link to a post_id. Both tables refer to the users table in wtm.db and include an ON DELETE CASCADE so that when a post is deleted, its associated comments are also deleted.
+
+When a user wants to create a post, they can submit a text with maximum 1000 characters and an optional photo through a form made with HTML. The system authenticates that the post is coming from the logged-in user, as well as handles file uploads securly with a name and a timestamp, and then inserts the post into the wtm.db database, which are stored in static/uploads/posts.
+
+When a user wants to view a post(s), the "Feed" tab at the top of the website allows users to see all posts and associated comments. This page queries all posts with JOIN operations, which allows us to see the username of the poster to the post as well. There are comment counts displayed, which are displayed in descending creation time order.
+
+When a user wants to add a comment, they can click on an individual post and submit a comment that is up to 500 characters maximum. The program ensures that the user and the post exist before adding the comment to the feed and wtm.db. Comments don't support photo uploads like posts.
+
+Only the creator of a post or comment can delete their own post or comment. Delete buttons are shown in each to provide users this option. This is done by checking session.get('user_id') against the content's user_id.
 
 ## Photo Upload System (Posts and Party Flyers)
 
@@ -60,6 +69,20 @@ I limited uploads to image types only (png, jpg, gif) to prevent users from uplo
 The about file is just a classic point for any software project. In this part of the webpage, we just have a quick description of what the motivation behind the project was and how to use it.
 
 # My Wishlist
+
+The wishlist feature gives users the ability to save parties that they are interested in attending, which allows for users to personalize a collection of interesting parties. A user can access their wishlist when logged in by clicking on the "My Wishlist" tab at the top of the page.
+
+A table titled "wishlist" was created in wtm.db that allows for many interactions between the users and parties table. This table links user_id and party_id with a UNIQUE constraint so that duplicates are avoided. added_at is a timestamp in the wishlist table so that all times a user adds or toggles their wishlist is tracked and saved. An ON DELETE CASCADE is used when a user deletes a party that they created, which will in turn delete the same party in a user's wishlist if they added it.
+
+One can toggle their wishlist using the /party/<party_id>/wishlist endpoint. This allows adding and removing of parties, as well as checks if entries to the wishlist exist. The endpoint returns JSON, which indicates whether the action the user takes was completed, such as telling the user if an item was added or removed from their wishlist.
+
+get_user_wishlist_ids() is a function defined in app.py that retrieves party IDs in the user's wishlist, which are passed to the template and rendered conditionally with red heart emoji (❤️) if a user added that party to their wishlist, and a white heart emoji (🤍) if that party is unsaved in a user's wishlist.
+
+The /wishlist route joins all three tables of wishlist, parties, and users so that all of the party details added to a wishlist are displayed and in descending order. In the case that a wishlist is empty or a user doesn't have any saved parties, the wishlist shows a message that has an embedded link to browse the parties page of all parties.
+
+The features in list.html appear on the user's end in showing hte heart button by a party so that a user may add this party to their wishlist. Clicking on the button triggers a fetch POST to the toggle endpointm which then updates the emoji color based on whether the user adds or removes a party from their wishlist. wishlist.html allows a seamless removal of parties from the wishlist that refreshes the page automtically when the user removes a party. When a user removes a party, a warning message is first displayed to confirm the action.
+
+Essentially, the wishlist is an entirely private and personalized aspect of WTM Harvard for users.
 
 # Settings
 
