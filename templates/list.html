@@ -4,17 +4,34 @@
 <div class="container">
     <h1>Upcoming Parties</h1>
     <p>Discover the best parties happening at Harvard this week.</p>
+    
+    {% if session.get('user') %}
     <div class="list-actions">
         <a class="btn primary" href="/add">Add a party</a>
     </div>
+    {% endif %}
+    
+    <!-- Interactive Map -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Party Map - Harvard Square</h5>
+        </div>
+        <div class="card-body">
+            <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
+        </div>
+    </div>
+    
+    <!-- List of Parties -->
     <div class="party-list">
         {% if parties and parties|length > 0 %}
             {% for party in parties %}
             <div class="party-card">
-<!-- Heart Wishlist Button (stops click from opening the party card link) -->
+                <!-- Heart button for wishlist -->
+                {% if session.get('user') %}
                 <button 
                     class="wishlist-btn" 
                     data-party-id="{{ party.id }}"
+                    data-in-wishlist="{{ 'true' if party.id in user_wishlist else 'false' }}"
                 >
                     {% if user_wishlist and party.id in user_wishlist %}
                         ❤️
@@ -22,69 +39,108 @@
                         🤍
                     {% endif %}
                 </button>
-<!-- Entire card remains clickable -->
+                {% endif %}
+                
+                <!-- Image card -->
                 <a class="party-card-link" href="/party/{{ party['id'] }}">
+                    <!-- Flyer/image for party -->
+                    {% if party.flyer_path %}
+                    <div style="margin-bottom: 12px;">
+                        <img src="{{ url_for('static', filename=party.flyer_path) }}" 
+                             alt="{{ party.party_name }} flyer"
+                             style="max-width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
+                    </div>
+                    {% endif %}
+                    
                     <div class="party-card-header">
                         <h3>{{ party['party_name'] }}</h3>
                         <div class="party-date">{{ party['date'] }} @ {{ party['time'] }}</div>
                     </div>
-                    <p class="party-meta">Hosted by {{ party['host_name'] }} • {{ party['location'] }}</p>
+                    
+                    <p class="party-meta">
+                        Hosted by {{ party['verified_host'] }} 
+                        <span class="badge bg-success" style="font-size: 0.75rem;">✓ Verified</span>
+                        • {{ party['location'] }}
+                    </p>
+                    
                     {% if party['description'] %}
-                    <p>{{ party['description'] }}</p>
+                    <p>{{ party['description'][:150] }}{% if party['description']|length > 150 %}...{% endif %}</p>
                     {% endif %}
                 </a>
             </div>
             {% endfor %}
         {% else %}
-            <p>No parties have been added yet.</p>
+            <div class="alert alert-secondary">
+                No parties have been added yet. Be the first to add one!
+            </div>
         {% endif %}
     </div>
 </div>
-<!-- AJAX script for toggling wishlist -->
+
+<!-- CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<!-- JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-function toggleWishlist(partyId) {
-    fetch(`/party/${partyId}/wishlist`, {
-        method: 'POST'
-    })
-    .then(res => res.json())
-    .then(data => {
-        const btn = document.querySelector(`button[data-party-id='${partyId}']`);
-        if (data.action === 'added') {
-            btn.textContent = "❤️";
-        } else {
-            btn.textContent = "🤍";
-        }
-    })
-    .catch(err => console.error(err));
-}
-</script>
-<script>
-// Event delegation for wishlist buttons
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.wishlist-btn').forEach(button => {
-        button.addEventListener('click', function(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            const partyId = this.getAttribute('data-party-id');
-            toggleWishlist(partyId);
+    // Have a map centered on Harvard Square
+    var map = L.map('map').setView([42.3736, -71.1190], 15);
+    
+    // OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
+    
+    // Get party locations and markers
+    fetch('/api/parties/map')
+        .then(response => response.json())
+        .then(parties => {
+            parties.forEach(party => {
+                if (party.latitude && party.longitude) {
+                    var marker = L.marker([party.latitude, party.longitude]).addTo(map);
+                    marker.bindPopup(`
+                        <strong>${party.name}</strong><br>
+                        Hosted by: ${party.host}<br>
+                        Location: ${party.location}<br>
+                        Date: ${party.date} at ${party.time}<br>
+                        <a href="/party/${party.id}">View Details</a>
+                    `);
+                }
+            });
+        })
+        .catch(error => console.error('Error loading party locations:', error));
+    
+    // Allow map to be edited from wishlist
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.wishlist-btn').forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.stopPropagation();
+                event.preventDefault();
+                
+                const partyId = this.getAttribute('data-party-id');
+                const btn = this;
+                
+                fetch(`/party/${partyId}/wishlist`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.action === 'added') {
+                        btn.textContent = '❤️';
+                        btn.dataset.inWishlist = 'true';
+                    } else {
+                        btn.textContent = '🤍';
+                        btn.dataset.inWishlist = 'false';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
         });
     });
-});
-
-function toggleWishlist(partyId) {
-    fetch(`/party/${partyId}/wishlist`, {
-        method: 'POST'
-    })
-    .then(res => res.json())
-    .then(data => {
-        const btn = document.querySelector(`button[data-party-id='${partyId}']`);
-        if (data.action === 'added') {
-            btn.textContent = "❤️";
-        } else {
-            btn.textContent = "🤍";
-        }
-    })
-    .catch(err => console.error(err));
-}
 </script>
 {% endblock %}

@@ -1,89 +1,99 @@
 {% extends "template.html" %}
-
-{% block title %}Post Details{% endblock %}
-
+{% block title %}Post Details - WTM Harvard{% endblock %}
 {% block content %}
 <div class="container mt-4">
-    <a href="{{ url_for('feed') }}" class="btn btn-secondary mb-3">← Back to Feed</a>
-
-    <!-- Original Post -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div>
-                    <h5 class="mb-0">{{ post.username }}</h5>
-                    <small class="text-muted">{{ post.created_at }}</small>
-                </div>
-                {% if session.get('user_id') == post.user_id %}
-                <form action="{{ url_for('delete_post', post_id=post.id) }}" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this post?');">
-                        Delete Post
-                    </button>
-                </form>
-                {% endif %}
-            </div>
-            <p class="card-text fs-5">{{ post.content }}</p>
-        </div>
-    </div>
-
-    <!-- Comment Form -->
-    {% if session.get('user') %}
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Add a Comment</h5>
-            <form action="{{ url_for('create_comment', post_id=post.id) }}" method="post">
-                <div class="mb-3">
-                    <textarea 
-                        class="form-control" 
-                        name="content" 
-                        rows="3" 
-                        placeholder="Write your comment..." 
-                        required
-                        maxlength="500"
-                    ></textarea>
-                    <div class="form-text">Maximum 500 characters</div>
-                </div>
-                <button type="submit" class="btn btn-primary">Comment</button>
-            </form>
-        </div>
-    </div>
-    {% else %}
-    <div class="alert alert-info mb-4">
-        <a href="{{ url_for('login_page') }}">Log in</a> to comment on this post.
-    </div>
-    {% endif %}
-
-    <!-- Comments Section -->
-    <div class="comments-section">
-        <h4 class="mb-3">Comments ({{ comments|length }})</h4>
-        
-        {% if comments %}
-            {% for comment in comments %}
-            <div class="card mb-2">
-                <div class="card-body py-2">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="flex-grow-1">
-                            <strong>{{ comment.username }}</strong>
-                            <small class="text-muted ms-2">{{ comment.created_at }}</small>
-                            <p class="mb-0 mt-1">{{ comment.content }}</p>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <a href="{{ url_for('feed') }}" class="btn btn-secondary mb-3">← Back to Feed</a>
+            
+            <!-- Post and functions -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h5 class="mb-0">{{ post.username }}</h5>
+                            <small class="text-muted">{{ post.created_at }}</small>
                         </div>
-                        {% if session.get('user_id') == comment.user_id %}
-                        <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="post" style="display: inline;">
-                            <button type="submit" class="btn btn-sm btn-link text-danger" onclick="return confirm('Delete this comment?');">
-                                Delete
+                        {% if session.get('user_id') == post.user_id %}
+                        <form action="{{ url_for('delete_post', post_id=post.id) }}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this post?');">
+                                Delete Post
                             </button>
                         </form>
                         {% endif %}
                     </div>
+                    <p class="card-text fs-5">{{ post.content }}</p>
+                    
+                    <!-- Photo in post -->
+                    {% if post.photo_path %}
+                    <div class="mb-3">
+                        <img src="{{ url_for('static', filename=post.photo_path) }}" 
+                             class="img-fluid rounded" 
+                             alt="Post photo"
+                             style="max-height: 500px; object-fit: cover;">
+                    </div>
+                    {% endif %}
                 </div>
             </div>
-            {% endfor %}
-        {% else %}
-            <div class="alert alert-secondary">
-                No comments yet. Be the first to comment!
+            
+            <!-- Form for comments -->
+            {% if session.get('user') %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Add a Comment</h5>
+                    <form action="{{ url_for('create_comment', post_id=post.id) }}" method="post">
+                        <div class="mb-3">
+                            <textarea 
+                                class="form-control" 
+                                name="content" 
+                                rows="3" 
+                                placeholder="Write your comment..." 
+                                required
+                                maxlength="500"
+                            ></textarea>
+                            <div class="form-text">Maximum 500 characters. Note: Photos can only be added to posts, not comments.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Comment</button>
+                    </form>
+                </div>
             </div>
-        {% endif %}
+            {% else %}
+            <div class="alert alert-info mb-4">
+                <a href="{{ url_for('login_page') }}">Log in</a> to comment on this post.
+            </div>
+            {% endif %}
+            
+            <!-- Section for comments -->
+            <div class="comments-section">
+                <h4 class="mb-3">Comments ({{ comments|length }})</h4>
+                {% if comments %}
+                    {% for comment in comments %}
+                    <div class="card mb-2">
+                        <div class="card-body py-2">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <strong>{{ comment.username }}</strong>
+                                    <small class="text-muted ms-2">{{ comment.created_at }}</small>
+                                    <p class="mb-0 mt-1">{{ comment.content }}</p>
+                                </div>
+                                {% if session.get('user_id') == comment.user_id %}
+                                <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="post" style="display: inline;">
+                                    <button type="submit" class="btn btn-sm btn-link text-danger" onclick="return confirm('Delete this comment?');">
+                                        Delete
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-secondary">
+                        No comments yet. Be the first to comment!
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </div>
-
 {% endblock %}

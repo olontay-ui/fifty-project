@@ -1,27 +1,30 @@
 {% extends "template.html" %}
-
-{% block title %}Feed{% endblock %}
-
+{% block title %}Community Feed - WTM Harvard{% endblock %}
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Community Feed</h1>
-
+    
     {% if session.get('user') %}
-    <!-- Post creation form -->
+    <!-- Form to create a post -->
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">Share something with the community</h5>
-            <form action="{{ url_for('create_post') }}" method="post">
+            <form action="{{ url_for('create_post') }}" method="post" enctype="multipart/form-data">
                 <div class="mb-3">
                     <textarea 
                         class="form-control" 
                         name="content" 
                         rows="3" 
-                        placeholder="What's on your mind?" 
+                        placeholder="What's happening at Harvard?" 
                         required
                         maxlength="1000"
                     ></textarea>
                     <div class="form-text">Maximum 1000 characters</div>
+                </div>
+                <div class="mb-3">
+                    <label for="photo" class="form-label">Add Photo (Optional)</label>
+                    <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                    <small class="text-muted">PNG, JPG, GIF - Max 16MB</small>
                 </div>
                 <button type="submit" class="btn btn-primary">Post</button>
             </form>
@@ -33,7 +36,7 @@
     </div>
     {% endif %}
 
-    <!-- Posts feed -->
+    <!-- Feed containing posts -->
     <div class="posts-container">
         {% if posts %}
             {% for post in posts %}
@@ -53,9 +56,19 @@
                         {% endif %}
                     </div>
                     <p class="card-text">{{ post.content }}</p>
+                    
+                    {% if post.photo_path %}
+                    <div class="mb-3">
+                        <img src="{{ url_for('static', filename=post.photo_path) }}" 
+                             class="img-fluid rounded" 
+                             alt="Post photo"
+                             style="max-height: 500px; object-fit: cover;">
+                    </div>
+                    {% endif %}
+                    
                     <div class="d-flex align-items-center">
                         <a href="{{ url_for('view_post', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">
-                            💬 {{ post.comment_count }} Comments
+                            💬 {{ post.comment_count }} Comment(s)
                         </a>
                     </div>
                 </div>
@@ -68,5 +81,4 @@
         {% endif %}
     </div>
 </div>
-
 {% endblock %}

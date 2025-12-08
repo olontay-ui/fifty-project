@@ -1,14 +1,11 @@
 {% extends "template.html" %}
-
 {% block title %}My Wishlist - WTM Harvard{% endblock %}
-
 {% block content %}
 <div class="wishlist-container">
     <div class="wishlist-header">
         <h1>My Wishlist</h1>
         <p class="wishlist-subtitle">Your saved parties and events</p>
     </div>
-
     {% if message %}
     <div class="empty-state">
         <div class="empty-icon">📋</div>
@@ -18,40 +15,38 @@
     {% else %}
     <div class="parties-grid">
         {% for party in parties %}
-        <div class="party-card">
+        <div class="party-card" id="party-card-{{ party.id }}">
             <div class="party-card-header">
                 <h3 class="party-name">{{ party.party_name }}</h3>
                 <span class="party-host">Hosted by {{ party.host_name }}</span>
             </div>
-            
             <div class="party-details">
                 <div class="detail-item">
                     <span class="detail-icon">📍</span>
                     <span class="detail-text">{{ party.location }}</span>
                 </div>
-                
                 <div class="detail-item">
                     <span class="detail-icon">📅</span>
                     <span class="detail-text">{{ party.date }}</span>
                 </div>
-                
                 <div class="detail-item">
                     <span class="detail-icon">🕐</span>
                     <span class="detail-text">{{ party.time }}</span>
                 </div>
             </div>
-
             {% if party.description %}
             <p class="party-description">{{ party.description }}</p>
             {% endif %}
-
             <div class="party-footer">
                 <small class="added-date">Added {{ party.added_at }}</small>
                 <div class="party-actions">
                     <a href="/party/{{ party.id }}" class="btn btn-sm btn-outline">View Details</a>
-                    <form action="/party/{{ party.id }}/wishlist" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-sm btn-danger">Remove</button>
-                    </form>
+                    <button type="button" 
+                            class="btn btn-sm btn-danger remove-wishlist-btn" 
+                            data-party-id="{{ party.id }}"
+                            data-party-name="{{ party.party_name }}">
+                        Remove
+                    </button>
                 </div>
             </div>
         </div>
@@ -59,4 +54,48 @@
     </div>
     {% endif %}
 </div>
+
+<!-- The below allows me to remove items from my wishlist more seamlessly -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.remove-wishlist-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const partyId = this.getAttribute('data-party-id');
+            const partyName = this.getAttribute('data-party-name');
+            
+            if (confirm(`Are you sure you want to remove "${partyName}" from your wishlist?`)) {
+                fetch(`/party/${partyId}/wishlist`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.action === 'removed') {
+                        // Remove the party card from the wishlist page
+                        const card = document.getElementById(`party-card-${partyId}`);
+                        card.style.transition = 'opacity 0.3s ease';
+                        card.style.opacity = '0';
+                        
+                        setTimeout(() => {
+                            card.remove();
+                            
+                            // check if wishlist is empty
+                            const remainingCards = document.querySelectorAll('.party-card');
+                            if (remainingCards.length === 0) {
+                                location.reload(); // reload page automatically to finish
+                            }
+                        }, 300);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to remove party from wishlist. Please try again.');
+                });
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

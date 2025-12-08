@@ -106,22 +106,26 @@ def party_detail(party_id):
                p.user_id,
                p.party_name,
                p.location,
+               p.latitude,
+               p.longitude,
                p.date,
                p.time,
                p.description,
                p.host_name,
+               p.flyer_path,
                p.created_at,
-               u.username AS created_by
+               u.username AS created_by,
+               u.display_name AS verified_host
         FROM parties p
         JOIN users u ON p.user_id = u.id
         WHERE p.id = ?
         """,
         (party_id,),
     ).fetchone()
-    conn.close()   # Party added to wtm.db
+    conn.close()
     if not party:
         return redirect(url_for('list_page'))
-    return render_template('party_detail.html', party=party) 
+    return render_template('party_detail.html', party=party)
 
 
 # WTM Harvard's "About" page

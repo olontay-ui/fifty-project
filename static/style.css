@@ -648,51 +648,6 @@ input:focus, textarea:focus, select:focus {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .nav-container {
-        flex-direction: column;
-        height: auto;
-        padding: 15px 20px;
-    }
-
-    .nav-menu {
-        gap: 15px;
-        width: 100%;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .nav-item {
-        height: auto;
-    }
-
-    h1 {
-        font-size: 1.8rem;
-    }
-
-    .content {
-        margin: 20px auto;
-    }
-
-    .hero {
-        grid-template-columns: 1fr;
-        padding: 28px;
-    }
-
-    .hero-content h1 {
-        font-size: 2rem;
-    }
-
-    .meta {
-        grid-template-columns: 1fr;
-    }
-
-    .cta-banner {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-}
 
 /* ============================================
    WISHLIST PAGE STYLES
@@ -894,27 +849,6 @@ input:focus, textarea:focus, select:focus {
 .empty-state .btn.primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 10px 24px rgba(220, 20, 60, 0.28);
-}
-
-/* Responsive adjustments for the wishlist */
-@media (max-width: 768px) {
-    .wishlist-header h1 {
-        font-size: 2rem;
-    }
-
-    .parties-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .party-footer {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .party-actions {
-        width: 100%;
-        justify-content: flex-start;
-    }
 }
 
 /* ============================================
@@ -1182,4 +1116,366 @@ input:focus, textarea:focus, select:focus {
 
 .nav-settings:hover {
     opacity: 0.8;
+}
+
+/* ============================================
+   MOBILE USE FOR WTM
+   ============================================ */
+
+/* Tablets and below (768px) */
+@media (max-width: 768px) {
+    /* Navigation */
+    .nav-container {
+        flex-direction: column;
+        height: auto;
+        padding: 15px 20px;
+    }
+
+    .nav-menu {
+        gap: 15px;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .nav-item {
+        height: auto;
+    }
+
+    .nav-auth {
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+        gap: 10px;
+    }
+
+    /* Typography */
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .wishlist-header h1 {
+        font-size: 2rem;
+    }
+
+    /* Content & Layout */
+    .content {
+        margin: 20px auto;
+        padding: 0 15px;
+    }
+
+    .container {
+        padding: 20px;
+    }
+
+    /* Hero Section */
+    .hero {
+        grid-template-columns: 1fr;
+        padding: 28px;
+    }
+
+    /* Grids */
+    .meta {
+        grid-template-columns: 1fr;
+    }
+
+    .party-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .steps {
+        grid-template-columns: 1fr;
+    }
+
+    .parties-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Party Cards */
+    .party-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .party-detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* Forms */
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    /* Buttons & Actions */
+    .cta-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .cta-group .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .party-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .party-actions .btn,
+    .party-actions button,
+    .party-actions form {
+        width: 100%;
+    }
+
+    .list-actions {
+        justify-content: flex-start;
+    }
+
+    /* Callouts & Banners */
+    .cta-banner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .auth-callout {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* Wishlist Page */
+    .party-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .wishlist-container .party-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    /* Feed Page */
+    .card {
+        padding: 12px;
+    }
+
+    /* Settings & Auth Pages */
+    .settings-card,
+    .auth-card {
+        padding: 24px;
+    }
+
+    /* Map adjustments */
+    #map,
+    #partyMap {
+        height: 250px !important;
+    }
+
+    /* Row/Column utilities */
+    .col-md-4,
+    .col-md-6,
+    .col-md-8 {
+        width: 100%;
+    }
+
+    .row {
+        margin: 0;
+    }
+
+    .justify-content-center {
+        justify-content: flex-start;
+    }
+}
+
+/* Mobile phones (480px and below) */
+@media (max-width: 480px) {
+    /* Navigation */
+    .nav-logo {
+        font-size: 1.4rem;
+    }
+
+    .nav-link,
+    .nav-login,
+    .nav-settings {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
+
+    /* Typography */
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    h3 {
+        font-size: 1.1rem;
+    }
+
+    .hero-content h1 {
+        font-size: 1.6rem;
+    }
+
+    .wishlist-header h1 {
+        font-size: 1.6rem;
+    }
+
+    .lead {
+        font-size: 0.95rem;
+    }
+
+    .party-name {
+        font-size: 1.2rem;
+    }
+
+    /* Content */
+    .content {
+        padding: 0 10px;
+    }
+
+    .container {
+        padding: 16px;
+    }
+
+    .wishlist-container {
+        padding: 20px 10px;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        min-height: 44px; /* Touch target size */
+    }
+
+    .btn-sm,
+    .wishlist-container .btn-sm {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        min-height: 40px;
+    }
+
+    /* Cards */
+    .card {
+        padding: 12px;
+    }
+
+    .party-detail-card {
+        padding: 12px;
+    }
+
+    .hero {
+        padding: 20px;
+    }
+
+    .section {
+        padding: 20px;
+    }
+
+    .wishlist-container .party-card {
+        padding: 16px;
+    }
+
+    /* Empty State */
+    .empty-icon {
+        font-size: 3rem;
+    }
+
+    .empty-message {
+        font-size: 1rem;
+    }
+
+    /* Forms */
+    .form-control,
+    input,
+    textarea,
+    select {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 12px;
+    }
+
+    /* Auth pages */
+    .auth-card,
+    .settings-card {
+        padding: 20px;
+    }
+
+    /* Wishlist heart button */
+    .wishlist-btn {
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 1.2rem;
+    }
+
+    /* Map */
+    #map,
+    #partyMap {
+        height: 200px !important;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Ensure all interactive elements are easy to tap */
+    .btn,
+    .nav-link,
+    button,
+    a {
+        -webkit-tap-highlight-color: rgba(220, 20, 60, 0.2);
+    }
+
+    /* Minimum touch target sizes */
+    .btn {
+        min-height: 44px;
+    }
+
+    .wishlist-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* Remove problematic hover effects on touch devices */
+    .wishlist-container .party-card:hover {
+        transform: translateY(-2px); /* Reduced from -4px */
+    }
+}
+
+/* Landscape phone orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+    .nav-container {
+        padding: 10px 20px;
+    }
+
+    .hero {
+        padding: 20px;
+    }
+
+    #map,
+    #partyMap {
+        height: 300px !important;
+    }
+}
+
+/* Ensure images are always responsive */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Better table responsiveness */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }

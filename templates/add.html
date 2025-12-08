@@ -1,5 +1,6 @@
-{% extends "layout.html" %}
-{% block body %}
+{% extends "template.html" %}
+{% block title %}Add Party - WTM Harvard{% endblock %}
+{% block content %}
     <div class="container mt-5">
         <h1>Share a new party with WTM</h1>
         <a href="/list" class="btn btn-outline-danger mb-3">Back to list</a>
@@ -15,9 +16,9 @@
                 <div class="col-md-6">
                     <label for="host_name" class="form-label">Host name</label>
                     <input type="text" class="form-control" id="host_name" name="host_name" 
-                           value="{{ user.username if user else '' }}" required>
-                    {% if user %}
-                        <small class="text-muted">Must match your username: {{ user.username }}</small>
+value="{{ session.get('username', '') }}" required>
+                    {% if session.get('username') %}
+                        <small class="text-muted">Must match your username: {{ session.get('username') }}</small>
                     {% endif %}
                 </div>
             </div>
@@ -25,7 +26,7 @@
                 <div class="col-md-4">
                     <label for="location" class="form-label">Location</label>
                     <input type="text" class="form-control" id="location" name="location" 
-                           placeholder="e.g., Harvard Square, Lowell House" required>
+placeholder="e.g., Harvard Square, Lowell House" required>
                 </div>
                 <div class="col-md-4">
                     <label for="date" class="form-label">Date</label>
@@ -39,7 +40,7 @@
             <div class="mb-3">
                 <label for="description" class="form-label">Description (optional)</label>
                 <textarea class="form-control" id="description" name="description" rows="3"
-                          placeholder="What to expect, entry details, vibe"></textarea>
+placeholder="What to expect, entry details, vibe"></textarea>
             </div>
             <div class="mb-3">
                 <label for="flyer" class="form-label">Party Flyer/Photo (Optional)</label>
