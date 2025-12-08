@@ -63,4 +63,17 @@ The about file is just a classic point for any software project. In this part of
 
 # Settings
 
-A “design document” for your project in the form of a Markdown file called DESIGN.md that discusses, technically, how you implemented your project and why you made the design decisions you did. Your design document should be at least several paragraphs in length. Whereas your documentation is meant to be a user’s manual, consider your design document your opportunity to give the staff a technical tour of your project underneath its hood.
+The settings feature provides users the ability to update their display username, whilst maintaining their login information and consistency across the entire website. As usernames are displayed in various aspects of the website (when a user creates a party, post, and logs in), a user has the ability to change their username, as it is displayed to other users on the site.
+
+/settings allows GET and POST requests, where on a GET request, the user's current display_name from users in wtm,db is shown. It's shown in the form box in settings. When using POST, the new username is validating assuing it exists and that it satisfies the following criteria:
+
+- Length: 3-20 characters
+- Characters: letters, numbers, and underscores only
+- Uniqueness: the username must not already exist in the users table in wtm.db
+- Non-empty: the username cannot be blank
+
+If all of these criteria are satisfied, then the user is allowed to change their name in settings. The user's username is then updated in users, and the session is immediately updated as to allow the new username ot be view across the website.
+
+Some security considerations made in settings are that the email cannot be changed through settings, which prevents users from locking themselves out. Also, it ensures stable authentication and that there is one account linked to each email address. The email is displayed in settings as read-only in the template. Users do not have to log out and log back in when their username is updated, as the session is updated after the change is made.
+
+If a user does not satisfy the criteria when creating their username, the exact error message is displayed, and will repeat until the username satisfies the criteria. There is also a cancel button provided in the case a user changes their mind.
